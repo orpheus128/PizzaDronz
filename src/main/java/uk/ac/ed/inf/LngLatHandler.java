@@ -3,7 +3,7 @@ package uk.ac.ed.inf;
 import uk.ac.ed.inf.ilp.data.LngLat;
 import uk.ac.ed.inf.ilp.data.NamedRegion;
 
-public class LngLatHandling implements uk.ac.ed.inf.ilp.interfaces.LngLatHandling {
+public class LngLatHandler implements uk.ac.ed.inf.ilp.interfaces.LngLatHandling {
 
     @Override
     public double distanceTo(LngLat startPosition, LngLat endPosition) {

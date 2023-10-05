@@ -1,5 +1,6 @@
 package uk.ac.ed.inf;
 
+import uk.ac.ed.inf.ilp.constant.OrderStatus;
 import uk.ac.ed.inf.ilp.constant.OrderValidationCode;
 import uk.ac.ed.inf.ilp.data.CreditCardInformation;
 import uk.ac.ed.inf.ilp.data.Order;
@@ -9,7 +10,7 @@ import java.util.Arrays;
 
 import static java.lang.Integer.parseInt;
 
-public class OrderValidation implements uk.ac.ed.inf.ilp.interfaces.OrderValidation {
+public class OrderValidator implements uk.ac.ed.inf.ilp.interfaces.OrderValidation {
     @Override
     public Order validateOrder(Order orderToValidate, Restaurant[] definedRestaurants) {
 
@@ -28,7 +29,15 @@ public class OrderValidation implements uk.ac.ed.inf.ilp.interfaces.OrderValidat
 
         if (ccn.length() != 16){
             orderToValidate.setOrderValidationCode(OrderValidationCode.CARD_NUMBER_INVALID);
+            orderToValidate.setOrderStatus(OrderStatus.INVALID);
             return orderToValidate;
+        }
+        for (char c : ccn.toCharArray()){
+            if (!Character.isDigit(c)){
+                orderToValidate.setOrderValidationCode(OrderValidationCode.CARD_NUMBER_INVALID);
+                orderToValidate.setOrderStatus(OrderStatus.INVALID);
+                return orderToValidate;
+            }
         }
 
         String cvv = creditCard.getCvv();
@@ -36,25 +45,37 @@ public class OrderValidation implements uk.ac.ed.inf.ilp.interfaces.OrderValidat
 
         if (cvv.length() != 3){
             orderToValidate.setOrderValidationCode(OrderValidationCode.CVV_INVALID);
+            orderToValidate.setOrderStatus(OrderStatus.INVALID);
             return orderToValidate;
+        }
+        for (char c : cvv.toCharArray()) {
+            if (!Character.isDigit(c)) {
+                orderToValidate.setOrderValidationCode(OrderValidationCode.CVV_INVALID);
+                orderToValidate.setOrderStatus(OrderStatus.INVALID);
+                return orderToValidate;
+            }
         }
 
         String expiry = creditCard.getCreditCardExpiry();
-        String[] splitString = expiry.split("/");
-        if (!expiry.matches("//d{2}///d{2}")){
+        if (!expiry.matches("(0[1-9]|1[0-2])/[0-9][0-9]")){
             orderToValidate.setOrderValidationCode(OrderValidationCode.EXPIRY_DATE_INVALID);
+            orderToValidate.setOrderStatus(OrderStatus.INVALID);
             return orderToValidate;
         }
-        String year = String.valueOf(java.time.LocalDate.now().getYear());
+        String[] splitExpiry = expiry.split("/");
 
-        int yearInt = parseInt(year.substring(2));
+        String orderYear = String.valueOf(orderToValidate.getOrderDate().getYear());
+        int orderYearInt = parseInt(orderYear.substring(2));
+        int orderMonth = java.time.LocalDate.now().getMonth().getValue();
 
-        int month = java.time.LocalDate.now().getMonth().getValue();
-
-        if (parseInt(splitString[1]) < yearInt){
+        if (parseInt(splitExpiry[1]) < orderYearInt){
             orderToValidate.setOrderValidationCode(OrderValidationCode.EXPIRY_DATE_INVALID);
-        }else if(parseInt(splitString[0]) < month){
+            orderToValidate.setOrderStatus(OrderStatus.INVALID);
+            return orderToValidate;
+        }else if(parseInt(splitExpiry[0]) < orderMonth & parseInt(splitExpiry[1]) == orderYearInt){
             orderToValidate.setOrderValidationCode(OrderValidationCode.EXPIRY_DATE_INVALID);
+            orderToValidate.setOrderStatus(OrderStatus.INVALID);
+            return orderToValidate;
         }
 
         //checkPizza will check for pizza related errors, such as the maximum count being exceeded, or the pizza being
@@ -62,8 +83,13 @@ public class OrderValidation implements uk.ac.ed.inf.ilp.interfaces.OrderValidat
         OrderValidationCode code = checkPizza(orderToValidate, definedRestaurants);
         if (code != OrderValidationCode.UNDEFINED){
             orderToValidate.setOrderValidationCode(code);
+            orderToValidate.setOrderStatus(OrderStatus.INVALID);
             return orderToValidate;
         }
+
+
+        orderToValidate.setOrderValidationCode(OrderValidationCode.NO_ERROR);
+        orderToValidate.setOrderStatus(OrderStatus.VALID_BUT_NOT_DELIVERED);
 
         return orderToValidate;
     }
@@ -77,22 +103,23 @@ public class OrderValidation implements uk.ac.ed.inf.ilp.interfaces.OrderValidat
         int restCount = 0;
         int pizzaCount = 0;
         Restaurant tempRestaurant = null;
-        int total = 0;
+        int total = 100;
         uk.ac.ed.inf.ilp.data.Pizza[] menu;
 
         while (pizzaCount < pizzasOrdered.length) {
             pizzaFound = false;
+            restCount = 0;
             while (restCount < definedRestaurants.length & !pizzaFound) {
-                tempRestaurant = restaurant;
                 menu = definedRestaurants[restCount].menu();
+                menuCount = 0;
                 while (!pizzaFound & menuCount < menu.length) {
 
                     if (pizzasOrdered[pizzaCount].equals(menu[menuCount])) {
                         pizzaFound = true;
-                        restaurant = definedRestaurants[restCount];
+                        tempRestaurant = definedRestaurants[restCount];
                         total += pizzasOrdered[pizzaCount].priceInPence();
                         if (pizzaCount == 0){
-                            tempRestaurant = restaurant;
+                            restaurant = tempRestaurant;
                         }
                     }
                     menuCount++;
@@ -108,7 +135,7 @@ public class OrderValidation implements uk.ac.ed.inf.ilp.interfaces.OrderValidat
             pizzaCount++;
         }
 
-        if (!Arrays.asList(restaurant.openingDays()).contains(java.time.LocalDate.now().getDayOfWeek())){
+        if (!Arrays.asList(restaurant.openingDays()).contains(orderToValidate.getOrderDate().getDayOfWeek())){
             return OrderValidationCode.RESTAURANT_CLOSED;
         }
         if (pizzasOrdered.length > 4){
