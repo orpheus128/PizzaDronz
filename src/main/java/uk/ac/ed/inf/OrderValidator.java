@@ -146,12 +146,12 @@ public class OrderValidator implements uk.ac.ed.inf.ilp.interfaces.OrderValidati
          */
 
         uk.ac.ed.inf.ilp.data.Pizza[] pizzasOrdered = orderToValidate.getPizzasInOrder();
-        Restaurant restaurant;
+        Restaurant restaurant = null;
         boolean pizzaFound;
         int menuCount;
         int restCount;
         int pizzaCount = 0;
-        Restaurant tempRestaurant;
+        Restaurant tempRestaurant = null;
         int total = 100;
         uk.ac.ed.inf.ilp.data.Pizza[] menu;
 
