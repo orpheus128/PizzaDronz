@@ -23,7 +23,6 @@ public class OrderValidator implements uk.ac.ed.inf.ilp.interfaces.OrderValidati
 
         CreditCardInformation creditCard = orderToValidate.getCreditCardInformation();
 
-       
         if (checkCCNInvalid(creditCard)){
             orderToValidate.setOrderStatus(OrderStatus.INVALID);
             orderToValidate.setOrderValidationCode(OrderValidationCode.CARD_NUMBER_INVALID);
