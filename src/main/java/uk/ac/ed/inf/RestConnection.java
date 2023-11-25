@@ -11,10 +11,8 @@ import java.net.http.HttpRequest;
 import java.net.URI;
 import java.net.http.HttpResponse;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.List;
 
 public class RestConnection {
 
@@ -30,44 +28,38 @@ public class RestConnection {
        Gson gson = createBuilder();
        Order[] orderArray = gson.fromJson(response, Order[].class);
 
-       Order[] todaysOrders = todaysOrders(orderArray, args);
-
-       return todaysOrders;
+       return todaysOrders(orderArray, args);
    }
 
     public Restaurant[] getRestaurantData(String[] args){
 
         String response = serverResponse(args, "/restaurants");
         Gson gson = createBuilder();
-        Restaurant[] restaurants = gson.fromJson(response, Restaurant[].class);
 
-        return restaurants;
+        return gson.fromJson(response, Restaurant[].class);
     }
 
     public NamedRegion getCentralArea(String[] args){
 
         String response = serverResponse(args, "/centralArea");
         Gson gson = createBuilder();
-        NamedRegion centralArea = gson.fromJson(response, NamedRegion.class);
 
-        return centralArea;
+        return gson.fromJson(response, NamedRegion.class);
     }
 
     public NamedRegion[] getNoFlyZones(String[] args){
 
         String response = serverResponse(args, "/noFlyZones");
         Gson gson = createBuilder();
-        NamedRegion[] noFlyZones = gson.fromJson(response, NamedRegion[].class);
 
-        return noFlyZones;
+        return gson.fromJson(response, NamedRegion[].class);
     }
 
     public Boolean isAlive(String[] args){
        String response = serverResponse(args, "/isAlive");
        Gson gson = createBuilder();
-       Boolean isAlive = gson.fromJson(response, Boolean.class);
 
-       return isAlive;
+        return gson.fromJson(response, Boolean.class);
     }
     private URI establishConnection(String uri){
         try{
@@ -84,7 +76,7 @@ public class RestConnection {
        HttpRequest request = HttpRequest.newBuilder().uri(restServer).build();
        String serverResponse;
        try {
-           serverResponse = client.send(request, HttpResponse.BodyHandlers.ofString()).body().toString();
+           serverResponse = client.send(request, HttpResponse.BodyHandlers.ofString()).body();
        } catch (IOException | InterruptedException e) {
            throw new RuntimeException(e);
        }

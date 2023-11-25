@@ -24,6 +24,21 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>com.progsbase.libraries</groupId>
+      <artifactId>JSON</artifactId>
+      <version>0.4.0</version>
+    </dependency>
+    <dependency>
+      <groupId>com.mapbox.mapboxsdk</groupId>
+      <artifactId>mapbox-sdk-geojson</artifactId>
+      <version>5.8.0</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>2.10.1</version>
+    </dependency>
+    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>RELEASE</version>
