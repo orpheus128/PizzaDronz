@@ -2,15 +2,12 @@ package uk.ac.ed.inf;
 
 import uk.ac.ed.inf.ilp.constant.OrderValidationCode;
 import uk.ac.ed.inf.ilp.data.*;
-
-import javax.swing.text.Position;
-import java.sql.Array;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class DroneRouter {
 
-    public DroneMove[] getAllPaths(Order[] orders, Restaurant[] restaurantArray, NamedRegion[] noFlyZones, NamedRegion central){
+    public ArrayList<DroneMove[]> getAllPaths(Order[] orders, Restaurant[] restaurantArray, NamedRegion[] noFlyZones, NamedRegion central){
 
         orders = validateOrders(orders, restaurantArray);
         ArrayList<Restaurant> visitedRestaurants = new ArrayList<>();
@@ -31,9 +28,7 @@ public class DroneRouter {
             }
         }
 
-        System.out.println(returnFlightPaths);
-
-        return null;
+        return returnFlightPaths;
     }
 
     private Order[] validateOrders(Order[] orders, Restaurant[] restaurantArray){
@@ -71,15 +66,14 @@ public class DroneRouter {
         double[] angles = {0, 45, 90, 135, 180, 225, 270, 315, 360};
 
         PositionNode currentPosition = new PositionNode(startPoint);
-        currentPosition.parent = null;
+        currentPosition.setParent(null);
         currentPosition.setH(estDistance);
         currentPosition.setG(0);
         currentPosition.setF(currentPosition.getG() + currentPosition.getH());
-        currentPosition.angle = 999;
+        currentPosition.setAngle(999);
         PositionNode positionToAdd;
         double tempG;
         PositionNode tempNode;
-        int count = 0;
         boolean enteredCentral = false;
 
         frontier.add(currentPosition);
@@ -90,10 +84,11 @@ public class DroneRouter {
 
             visited.add(currentPosition);
 
-            if (lngLatHandler.isCloseTo(currentPosition.position, endPoint)){
+            if (lngLatHandler.isCloseTo(currentPosition.getPosition(), endPoint)){
 
                 flightPath = constructPath(currentPosition, startPoint, endPoint);
                 DroneMove[] flightArray = new DroneMove[flightPath.size()];
+
                 return flightPath.toArray(flightArray);
             }
 
@@ -103,16 +98,16 @@ public class DroneRouter {
             //calculates the next 16 points to travel to, and if those points exist already in the frontier
             //then calculates if
             for (Double angle : angles) {
-                positionToAdd = new PositionNode(lngLatHandler.nextPosition(currentPosition.position, angle));
-                if (lngLatHandler.isInCentralArea(positionToAdd.position, central)){
+                positionToAdd = new PositionNode(lngLatHandler.nextPosition(currentPosition.getPosition(), angle));
+                if (lngLatHandler.isInCentralArea(positionToAdd.getPosition(), central)){
                     enteredCentral = true;
                 }
-                if (enteredCentral && !lngLatHandler.isInCentralArea(positionToAdd.position, central)){
+                if (enteredCentral && !lngLatHandler.isInCentralArea(positionToAdd.getPosition(), central)){
                     continue;
                 }
                 //the above code is meant to stop the drone from reentering the central area, but currently doesnt work.
-                while (inNoFlyZone == false & counter < noFlyZones.length){
-                    if (lngLatHandler.isInRegion(positionToAdd.position, noFlyZones[counter])){
+                while (!inNoFlyZone & counter < noFlyZones.length){
+                    if (lngLatHandler.isInRegion(positionToAdd.getPosition(), noFlyZones[counter])){
                         inNoFlyZone = true;
                     }
                     counter++;
@@ -121,25 +116,24 @@ public class DroneRouter {
                     double tentativeG = currentPosition.getG() + 0.00015;
 
                     if (!isPointAlreadyVisited(positionToAdd, visited)){
-                        tempNode = findPoint(frontier, positionToAdd.position);
+                        tempNode = findPoint(frontier, positionToAdd.getPosition());
                         if (tempNode != null){
                             tempG = tempNode.getG();
 
                             if (tentativeG < tempG){
-                                tempNode.parent = currentPosition;
+                                tempNode.setParent(currentPosition);
                                 tempNode.setG(currentPosition.getG() + 0.00015);
-                                tempNode.setH(1.5 * lngLatHandler.distanceTo(tempNode.position, endPoint));
+                                tempNode.setH(lngLatHandler.distanceTo(tempNode.getPosition(), endPoint));
                                 tempNode.setF(tempNode.getG() + tempNode.getH());
-                                tempNode.angle = angle;
-
+                                tempNode.setAngle(angle);
                                 frontier.add(positionToAdd);
                             }
                         }else{
-                            positionToAdd.parent = currentPosition;
+                            positionToAdd.setParent(currentPosition);
                             positionToAdd.setG(currentPosition.getG() + 0.00015);
-                            positionToAdd.setH(1.5 * lngLatHandler.distanceTo(positionToAdd.position, endPoint));
+                            positionToAdd.setH(lngLatHandler.distanceTo(positionToAdd.getPosition(), endPoint));
                             positionToAdd.setF(currentPosition.getG() + currentPosition.getH());
-                            positionToAdd.angle = angle;
+                            positionToAdd.setAngle(angle);
                             frontier.add(positionToAdd);
                         }
                     }
@@ -158,8 +152,8 @@ public class DroneRouter {
         while (iterator.hasNext()){
             PositionNode next = iterator.next();
 
-            if (next.position.lng() == position.lng()
-                && next.position.lat() == position.lat()){
+            if (next.getPosition().lng() == position.lng()
+                && next.getPosition().lat() == position.lat()){
                 return next;
             }
 
@@ -170,8 +164,8 @@ public class DroneRouter {
 
     private Boolean isPointAlreadyVisited(PositionNode positionNode, HashSet<PositionNode> visited){
         boolean isVisited = !visited.stream()
-                .filter(e -> e.position.lng() == positionNode.position.lng() &
-                        e.position.lat() == positionNode.position.lng())
+                .filter(e -> e.getPosition().lng() == positionNode.getPosition().lng() &
+                        e.getPosition().lat() == positionNode.getPosition().lng())
                 .collect(Collectors.toList()).isEmpty();
         if (isVisited){
             return true;
@@ -213,9 +207,9 @@ public class DroneRouter {
     private ArrayList<DroneMove> partialPath(PositionNode currentPosition, ArrayList<DroneMove> flightPath){
 
         while (currentPosition != null) {
-            if (currentPosition.parent != null){
-                flightPath.add(new DroneMove(currentPosition.parent.position, currentPosition.angle, currentPosition.position));
-                currentPosition = currentPosition.parent;
+            if (currentPosition.getParent() != null){
+                flightPath.add(new DroneMove(currentPosition.getParent().getPosition(), currentPosition.getAngle(), currentPosition.getPosition()));
+                currentPosition = currentPosition.getParent();
             }else{
                 currentPosition = null;
             }

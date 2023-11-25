@@ -14,12 +14,12 @@ public class DroneMove {
     }
 
     public LngLat getFromPosition() {
-        return fromPosition;
+        return this.fromPosition;
     }
     public double getAngle() {
-        return angle;
+        return this.angle;
     }
     public LngLat getToPosition(){
-        return toPosition;
+        return this.toPosition;
     }
 }
