@@ -134,7 +134,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>uk.ac.ed.inf.Main</mainClass>
+              <mainClass>uk.ac.ed.inf.App</mainClass>
             </manifest>
           </archive>
         </configuration>
