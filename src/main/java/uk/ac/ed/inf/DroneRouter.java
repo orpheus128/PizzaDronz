@@ -1,5 +1,6 @@
 package uk.ac.ed.inf;
 
+import uk.ac.ed.inf.ilp.constant.OrderStatus;
 import uk.ac.ed.inf.ilp.constant.OrderValidationCode;
 import uk.ac.ed.inf.ilp.data.*;
 import java.util.*;
@@ -7,24 +8,30 @@ import java.util.stream.Collectors;
 
 public class DroneRouter {
 
-    public ArrayList<DroneMove[]> getAllPaths(Order[] orders, Restaurant[] restaurantArray, NamedRegion[] noFlyZones, NamedRegion central){
+    public ArrayList<FlightPath> getAllPaths(Order[] orders, Restaurant[] restaurantArray, NamedRegion[] noFlyZones, NamedRegion central){
 
         orders = validateOrders(orders, restaurantArray);
         ArrayList<Restaurant> visitedRestaurants = new ArrayList<>();
-        ArrayList<DroneMove[]> flightPaths = new ArrayList<>();
-        ArrayList<DroneMove[]> returnFlightPaths = new ArrayList<>();
+        ArrayList<FlightPath> flightPaths = new ArrayList<>();
+        ArrayList<FlightPath> returnFlightPaths = new ArrayList<>();
 
 
         for (Order order: orders) {
-            Restaurant restaurant = restaurantFromPizza(order, restaurantArray);
-            if (visitedRestaurants.contains(restaurant)){
-                int pathIndex = visitedRestaurants.indexOf(restaurant);
-                returnFlightPaths.add(flightPaths.get(pathIndex));
-            }else {
-                visitedRestaurants.add(restaurant);
-                DroneMove[] flightPath = getFlightPath(order, restaurant, noFlyZones, central);
-                flightPaths.add(flightPath);
-                returnFlightPaths.add(flightPath);
+            if (order.getOrderValidationCode() == OrderValidationCode.NO_ERROR) {
+                Restaurant restaurant = restaurantFromPizza(order, restaurantArray);
+                if (visitedRestaurants.contains(restaurant)) {
+                    int pathIndex = visitedRestaurants.indexOf(restaurant);
+                    order.setOrderStatus(OrderStatus.DELIVERED);
+                    FlightPath flightPath = new FlightPath(order, flightPaths.get(pathIndex).getFlightPath());
+                    returnFlightPaths.add(flightPath);
+                } else {
+                    visitedRestaurants.add(restaurant);
+                    DroneMove[] flightRoute = getFlightRoute(order, restaurant, noFlyZones, central);
+                    order.setOrderStatus(OrderStatus.DELIVERED);
+                    FlightPath flightPath = new FlightPath(order, flightRoute);
+                    flightPaths.add(flightPath);
+                    returnFlightPaths.add(flightPath);
+                }
             }
         }
 
@@ -34,20 +41,22 @@ public class DroneRouter {
     private Order[] validateOrders(Order[] orders, Restaurant[] restaurantArray){
 
         OrderValidator orderValidator = new OrderValidator();
-        ArrayList<Order> validOrders = new ArrayList<>();
+//        ArrayList<Order> validOrders = new ArrayList<>();
         for (Order order : orders){
             orderValidator.validateOrder(order, restaurantArray);
-            if (order.getOrderValidationCode() == OrderValidationCode.NO_ERROR){
-                validOrders.add(order);
-            }
+//            if (order.getOrderValidationCode() == OrderValidationCode.NO_ERROR){
+//                validOrders.add(order);
+//            }
         }
 
-        Order[] orderArray = new Order[validOrders.size()];
+        return orders;
 
-        return validOrders.toArray(orderArray);
+//        Order[] orderArray = new Order[validOrders.size()];
+//
+//        return validOrders.toArray(orderArray);
     }
 
-    public DroneMove[] getFlightPath(Order order, Restaurant restaurant, NamedRegion[] noFlyZones, NamedRegion central){
+    public DroneMove[] getFlightRoute(Order order, Restaurant restaurant, NamedRegion[] noFlyZones, NamedRegion central){
 
         PriorityQueue<PositionNode> frontier = new PriorityQueue<PositionNode>(Comparator.comparingDouble(p -> p.getF()));
         HashSet<PositionNode> visited = new HashSet<PositionNode>();
@@ -64,6 +73,7 @@ public class DroneRouter {
         List<PositionNode> tempFrontierList = new ArrayList<>();
 
         double[] angles = {0, 45, 90, 135, 180, 225, 270, 315, 360};
+        //double[] angles = {0, 22.5, 45, 67.5, 90, 112.5, 135, 157.5, 180, 202.5, 225, 247.5, 270, 292.5, 315, 337.5, 360};
 
         PositionNode currentPosition = new PositionNode(startPoint);
         currentPosition.setParent(null);
@@ -195,7 +205,7 @@ public class DroneRouter {
 
         flightPath = partialPath(currentPosition, flightPath);
         flightPath.add(new DroneMove(startPoint, 999, startPoint)); //set angle to 999
-        returnPath = partialPath(currentPosition, returnPath);
+        returnPath = partialReturningPath(currentPosition, returnPath);
         returnPath.add(new DroneMove(endPoint, 999, endPoint));
         Collections.reverse(returnPath);
 
@@ -204,16 +214,33 @@ public class DroneRouter {
         return flightPath;
     }
 
+    //the following constructs the path from appleton to restaurant, but since my algorithm goes from restaurant to AT,
+    //i have to first flip the angles for them to be accurate
     private ArrayList<DroneMove> partialPath(PositionNode currentPosition, ArrayList<DroneMove> flightPath){
 
+        double angle;
         while (currentPosition != null) {
             if (currentPosition.getParent() != null){
-                flightPath.add(new DroneMove(currentPosition.getParent().getPosition(), currentPosition.getAngle(), currentPosition.getPosition()));
+                angle = (currentPosition.getAngle()+180)%360; //flips the angle calculated by the original routing
+                flightPath.add(new DroneMove(currentPosition.getParent().getPosition(), angle, currentPosition.getPosition()));
                 currentPosition = currentPosition.getParent();
             }else{
                 currentPosition = null;
             }
         }
         return flightPath;
+    }
+
+    private ArrayList<DroneMove> partialReturningPath(PositionNode currentPosition, ArrayList<DroneMove> returnPath){
+
+        while (currentPosition != null) {
+            if (currentPosition.getParent() != null){
+                returnPath.add(new DroneMove(currentPosition.getParent().getPosition(), currentPosition.getAngle(), currentPosition.getPosition()));
+                currentPosition = currentPosition.getParent();
+            }else{
+                currentPosition = null;
+            }
+        }
+        return returnPath;
     }
 }
