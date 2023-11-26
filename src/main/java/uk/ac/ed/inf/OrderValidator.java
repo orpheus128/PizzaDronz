@@ -12,14 +12,15 @@ import java.util.Arrays;
 import static java.lang.Integer.parseInt;
 
 public class OrderValidator implements uk.ac.ed.inf.ilp.interfaces.OrderValidation {
+
+    /**
+     * validates an order by checking specific aspects of it
+     * if any of these aspects are erroneous an associated error code will be returned which indicates the error
+     * @param orderToValidate is the order which we are inspecting
+     * @param definedRestaurants is a list of restaurants which are participating in the PizzaDronz service
+     */
     @Override
     public Order validateOrder(Order orderToValidate, Restaurant[] definedRestaurants) {
-        /**
-         * validates an order by checking specific aspects of it
-         * if any of these aspects are erroneous an associated error code will be returned which indicates the error
-         * @param orderToValidate is the order which we are inspecting
-         * @param definedRestaurants is a list of restaurants which are participating in the PizzaDronz service
-         */
 
         CreditCardInformation creditCard = orderToValidate.getCreditCardInformation();
 
@@ -54,11 +55,12 @@ public class OrderValidator implements uk.ac.ed.inf.ilp.interfaces.OrderValidati
         return orderToValidate;
     }
 
+    /**
+     * returns true if there are issues with the credit card number, and false if there are not
+     * @param creditCard is the credit card from the order which we extract the credit card number from
+     */
     public Boolean checkCCNInvalid(CreditCardInformation creditCard){
-        /**
-         * returns true if there are issues with the credit card number, and false if there are not
-         * @param creditCard is the credit card from the order which we extract the credit card number from
-         */
+
         String ccn = creditCard.getCreditCardNumber();
         if (ccn == null){
             return true;
@@ -76,11 +78,12 @@ public class OrderValidator implements uk.ac.ed.inf.ilp.interfaces.OrderValidati
         return false;
     }
 
+    /**
+     * returns true if there are issues with the credit card's cvv, and false if there are not
+     * @param creditCard is the credit card which we extract the cvv from
+     */
     public Boolean checkCVVInvalid(CreditCardInformation creditCard){
-        /**
-         * returns true if there are issues with the credit card's cvv, and false if there are not
-         * @param creditCard is the credit card which we extract the cvv from
-         */
+
         String cvv = creditCard.getCvv();
 
         if (cvv == null){
@@ -99,13 +102,13 @@ public class OrderValidator implements uk.ac.ed.inf.ilp.interfaces.OrderValidati
         return false;
     }
 
+    /**
+     * returns true if the expiry date is invalid for any reason, such as being in the past or
+     * being in the wrong format. returns false if there are no issues with the cvv
+     * @param orderToValidate is the order with a date which we are checking the expiry date against
+     * @param creditCard is the credit card we are extracting the expiry date from
+     */
     public Boolean checkExpiryDateInvalid(Order orderToValidate, CreditCardInformation creditCard){
-        /**
-         * returns true if the expiry date is invalid for any reason, such as being in the past or
-         * being in the wrong format. returns false if there are no issues with the cvv
-         * @param orderToValidate is the order with a date which we are checking the expiry date against
-         * @param creditCard is the credit card we are extracting the expiry date from
-         */
 
         String expiry = creditCard.getCreditCardExpiry();
         if (expiry == null){
@@ -130,19 +133,17 @@ public class OrderValidator implements uk.ac.ed.inf.ilp.interfaces.OrderValidati
         return false;
     }
 
-    
-    //The following code 
+    /**
+     * loops through the menus of every restaurant until finding the first pizza from an order
+     * once this pizza is found, the restaurant is saved, and then the other pizzas are searched for
+     * if no pizzas are found, then an error is thrown
+     * if the pizzas come from different restaurants, a separate error is thrown.
+     * if neither of these are true, a further function is used to check for more errors
+     * if no errors are found, the default code is returned to the main function
+     * @param orderToValidate is the order the pizzas are taken from
+     * @param definedRestaurants is the list of restaurants which menus are taken from
+     */
     public OrderValidationCode checkPizza(Order orderToValidate, Restaurant[] definedRestaurants){
-        /**
-         * loops through the menus of every restaurant until finding the first pizza from an order
-         * once this pizza is found, the restaurant is saved, and then the other pizzas are searched for
-         * if no pizzas are found, then an error is thrown
-         * if the pizzas come from different restaurants, a separate error is thrown.
-         * if neither of these are true, a further function is used to check for more errors
-         * if no errors are found, the default code is returned to the main function
-         * @param orderToValidate is the order the pizzas are taken from
-         * @param definedRestaurant is the list of restaurants which menus are taken from
-         */
 
         uk.ac.ed.inf.ilp.data.Pizza[] pizzasOrdered = orderToValidate.getPizzasInOrder();
         Restaurant restaurant = null;
@@ -193,18 +194,17 @@ public class OrderValidator implements uk.ac.ed.inf.ilp.interfaces.OrderValidati
         return OrderValidationCode.UNDEFINED;
     }
 
+    /**
+     * checks for more errors which could occur, checks if the restaurant was open when the order was placed
+     * checks if there are no more than 4 pizzas ordered, checks if the total amount is correct
+     * if all of these checks pass, then the default code is returned
+     * @param restaurant is the restaurant that is ordered from
+     * @param orderToValidate is the order we extract the orderDate from
+     * @param pizzasOrdered is a list of the pizzas ordered
+     * @param total is a computed running total of the pizza's prices from the menu
+     */
     OrderValidationCode checkPizzaFurther(Restaurant restaurant, Order orderToValidate, Pizza[] pizzasOrdered, int total){
-        /**
-         * checks for more errors which could occur
-         * checks if the restaurant was open when the order was placed
-         * checks if there are no more than 4 pizzas ordered
-         * checks if the total amount is correct
-         * if all of these checks pass, then the default code is returned
-         * @param restaurant is the restaurant that is ordered from
-         * @param orderToValidate is the order we extract the orderDate from
-         * @param pizzasOrdered is a list of the pizzas ordered
-         * @param total is a computed running total of the pizza's prices from the menu
-         */
+
         if (!Arrays.asList(restaurant.openingDays()).contains(orderToValidate.getOrderDate().getDayOfWeek())){
             return OrderValidationCode.RESTAURANT_CLOSED;
         }

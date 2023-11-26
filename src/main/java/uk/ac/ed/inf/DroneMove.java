@@ -2,6 +2,10 @@ package uk.ac.ed.inf;
 
 import uk.ac.ed.inf.ilp.data.LngLat;
 
+/**
+ * DroneMove stores a move for a drone, with the position it's moving from, the angle it's moving at, and the position
+ * it's moving to, as well as storing the orderNo the move is for.
+ */
 public class DroneMove {
 
     private final LngLat fromPosition;

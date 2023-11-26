@@ -2,6 +2,9 @@ package uk.ac.ed.inf;
 
 import uk.ac.ed.inf.ilp.data.LngLat;
 
+/**
+ * The PositionNode class is used for storing information about a specific point.
+ */
 public class PositionNode {
 
     private LngLat position;

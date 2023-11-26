@@ -9,13 +9,13 @@ import java.util.ArrayList;
 
 public class LngLatHandler implements uk.ac.ed.inf.ilp.interfaces.LngLatHandling {
 
+    /**
+     * Calculate distance from one point to another using the pythagorean theorem
+     * @param startPosition is the position you are calculating the distance from
+     * @param endPosition is the position you are calculating the distance to
+     */
     @Override
     public double distanceTo(LngLat startPosition, LngLat endPosition) {
-        /**
-         * Calculate distance from one point to another using the pythagorean theorem
-         * @param startPosition is the position you are calculating the distance from
-         * @param endPosition is the position you are calculating the distance to
-         */
 
         //Here, I store the longitude and latitude from the start and end positions in variables as it prevents the
         //final calculation being messy
@@ -30,14 +30,13 @@ public class LngLatHandler implements uk.ac.ed.inf.ilp.interfaces.LngLatHandling
         return Math.sqrt(innerCalc);
     }
 
+    /**
+     * As per the specification, if a point is within 0.00015 of another point, it is considered close
+     * @param startPosition is the first position
+     * @param otherPosition is the position you are checking is close to the first position
+     */
     @Override
     public boolean isCloseTo(LngLat startPosition, LngLat otherPosition) {
-        /**
-         * as per the specification, if a point is within 0.00015 of another point, it is considered close
-         * @param startPosition is the first position
-         * @param otherPosition is the position you are checking is close to the first position
-         */
-
         return distanceTo(startPosition, otherPosition) < 0.00015;
     }
 
@@ -52,15 +51,15 @@ public class LngLatHandler implements uk.ac.ed.inf.ilp.interfaces.LngLatHandling
         }
     }
 
+    /**
+     * Uses the ray casting algorithm to test if there are any intersections,
+     * if the number of intersections is even, the point lies outwith the region
+     * if the number of intersections is odd, the point lies within the region
+     * @param position is the current position you are checking
+     * @param region is the region that the position may or may not be in
+     */
     @Override
     public boolean isInRegion(LngLat position, NamedRegion region) {
-        /**
-         * Uses the ray casting algorithm to test if there are any intersections,
-         * if the number of intersections is even, the point lies outwith the region
-         * if the number of intersections is odd, the point lies within the region
-         * @param position is the current position you are checking
-         * @param region is the region that the position may or may not be in
-         */
 
         LngLat[] vertices = region.vertices();
         double x1;
@@ -84,14 +83,14 @@ public class LngLatHandler implements uk.ac.ed.inf.ilp.interfaces.LngLatHandling
         return numIntersections % 2 == 1;
     }
 
+    /**
+     * returns the next position the drone will move to when given an angle which represents one of the 16 major
+     * compass directions
+     * @param startPosition is the initial position
+     * @param angle is the direction the drone will move in (East is 0, North is 90, etc)
+     */
     @Override
     public LngLat nextPosition(LngLat startPosition, double angle) {
-        /**
-         * returns the next position the drone will move to when given an angle which represents one of the 16 major
-         * compass directions
-         * @param startPosition is the initial position
-         * @param angle is the direction the drone will move in (East is 0, North is 90, etc)
-         */
 
         if (angle == 999){return startPosition;}
         else if(angle % 22.5 != 0){return startPosition;}

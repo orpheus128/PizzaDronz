@@ -12,10 +12,14 @@ import java.net.URI;
 import java.net.http.HttpResponse;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 
 public class RestConnection {
 
+    /**
+     * Accesses the given rest server to retrieve the orders for the specified date
+     * @param args is the arguments passed in by the user
+     * @return a list of the orders for the given date
+     */
    public Order[] getOrderData(String[] args) {
 
        LocalDate date;
@@ -28,7 +32,7 @@ public class RestConnection {
        Gson gson = createBuilder();
        Order[] orderArray = gson.fromJson(response, Order[].class);
 
-       return todaysOrders(orderArray, args);
+       return orderArray;
    }
 
     public Restaurant[] getRestaurantData(String[] args){
@@ -56,11 +60,18 @@ public class RestConnection {
     }
 
     public Boolean isAlive(String[] args){
+
        String response = serverResponse(args, "/isAlive");
        Gson gson = createBuilder();
 
         return gson.fromJson(response, Boolean.class);
     }
+
+    /**
+     * Creates the URI used to create a connection to the rest server
+     * @param uri is the uri given by the user
+     * @return a URI object
+     */
     private URI establishConnection(String uri){
         try{
            return new URI(uri);
@@ -69,6 +80,12 @@ public class RestConnection {
         }
    }
 
+    /**
+     * Retrieves the json file from the specified extension of the REST server
+     * @param args is the list of arguments given by the user
+     * @param extension is the specific file to be retrieved from the REST server
+     * @return
+     */
    private String serverResponse(String[] args, String extension){
        URI restServer = establishConnection(args[1].concat(extension));
 
@@ -83,22 +100,9 @@ public class RestConnection {
 
        return serverResponse;
    }
+
    private Gson createBuilder(){
        return new GsonBuilder().registerTypeAdapter(LocalDate.class, new LocalDateDeserializer()).create();
-   }
-
-   private Order[] todaysOrders(Order[] orderArray, String[] args){
-
-       ArrayList<Order> orderList = new ArrayList<>();
-
-//       System.out.println("All orders:");
-       for (Order order: orderArray) {
-           if (order.getOrderDate().equals(LocalDate.parse(args[0], DateTimeFormatter.ofPattern("yyyy-MM-dd")))){
-               orderList.add(order);
-           }
-       }
-       Order[] todayOrders = new Order[orderList.size()];
-       return orderList.toArray(todayOrders);
    }
 }
 

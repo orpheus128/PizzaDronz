@@ -6,10 +6,17 @@ import uk.ac.ed.inf.ilp.data.Restaurant;
 
 import java.util.ArrayList;
 import java.util.List;
-import com.mapbox.geojson.*;
 
 public class App 
 {
+
+    /**
+     * Creates a rest connection, then retrieves the orders, restaurants, centralArea, and noFlyZones, if it is alive
+     * Orders are then validated, then passed into a DroneRouter class to create all the paths for valid orders
+     * All paths are then consolidated into one flight path to be printed as a JSON file
+     * Three output files are then generated using methods from the JsonSerialiser class
+     * @param args contains the date and the name of the rest server
+     */
     public static void main(String[] args)
     {
         RestConnection restConnection = new RestConnection();
@@ -44,13 +51,15 @@ public class App
         jsonSerialiser.createFlightArray(finalPath);
 
         jsonSerialiser.createResultFiles(args[0]);
-
-//        for (DroneMove move : finalPath){
-//            System.out.println(move.toString());
-//        }
-//        System.out.println(finalPath);
     }
 
+    /**
+     * validateOrders takes in a list of orders and validates them using a function in the OrderValidator class.
+     * @param orders is the list of orders to be validated
+     * @param restaurantArray is the list of restaurants that need to be passed into validateOrder from orderValidator
+     * @return a list of orders which have their validation code changed to either NO_ERROR or a code which reflects the
+     * issue with it
+     */
     private static Order[] validateOrders(Order[] orders, Restaurant[] restaurantArray){
 
         OrderValidator orderValidator = new OrderValidator();
