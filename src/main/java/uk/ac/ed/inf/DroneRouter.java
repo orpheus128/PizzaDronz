@@ -66,17 +66,11 @@ public class DroneRouter {
         PriorityQueue<PositionNode> frontier = new PriorityQueue<PositionNode>(Comparator.comparingDouble(p -> p.getF()));
         HashSet<PositionNode> visited = new HashSet<PositionNode>();
         ArrayList<DroneMove> flightPath;
-
         LngLat startPoint = restaurant.location();
-
         LngLat endPoint = new Constants().getAppletonPoint(); //LngLat co-ords of Appleton, stored as a constant
-
         LngLatHandler lngLatHandler = new LngLatHandler();
-
         double estDistance = lngLatHandler.distanceTo(startPoint, endPoint);
-
         double[] angles = {0, 45, 90, 135, 180, 225, 270, 315, 360};
-
         PositionNode currentPosition = new PositionNode(startPoint);
         currentPosition.setParent(null);
         currentPosition.setH(estDistance);
