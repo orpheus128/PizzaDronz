@@ -95,7 +95,7 @@ public class RestConnection {
        try {
            serverResponse = client.send(request, HttpResponse.BodyHandlers.ofString()).body();
        } catch (IOException | InterruptedException e) {
-           throw new RuntimeException(e);
+           throw new RuntimeException("The provided link does not exist");
        }
 
        return serverResponse;
