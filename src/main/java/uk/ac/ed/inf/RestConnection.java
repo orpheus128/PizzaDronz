@@ -29,41 +29,60 @@ public class RestConnection {
        }
        String response = serverResponse(args, "/orders/" + date);
        Gson gson = createBuilder();
-       Order[] orderArray = gson.fromJson(response, Order[].class);
+       Order[] orderArray;
+        try{
+            orderArray = gson.fromJson(response, Order[].class);
+        }catch (Exception e){
+            throw new RuntimeException("Could not find orders.JSON in the provided URL");
+        }
 
        return orderArray;
    }
 
     public Restaurant[] getRestaurantData(String[] args){
 
-        String response = serverResponse(args, "/restaurants");
-        Gson gson = createBuilder();
+       String response = serverResponse(args, "/restaurants");
 
-        return gson.fromJson(response, Restaurant[].class);
+        Gson gson = createBuilder();
+        try{
+            return gson.fromJson(response, Restaurant[].class);
+        }catch (Exception e){
+            throw new RuntimeException("Could not find restaurants.JSON in the provided URL");
+        }
     }
 
     public NamedRegion getCentralArea(String[] args){
 
-        String response = serverResponse(args, "/centralArea");
-        Gson gson = createBuilder();
+       String response = serverResponse(args, "/centralArea");
 
-        return gson.fromJson(response, NamedRegion.class);
+       Gson gson = createBuilder();
+       try{
+           return gson.fromJson(response, NamedRegion.class);
+       }catch (Exception e){
+           throw new RuntimeException("Could not find centralArea.JSON in the provided URL");
+       }
     }
 
     public NamedRegion[] getNoFlyZones(String[] args){
 
         String response = serverResponse(args, "/noFlyZones");
         Gson gson = createBuilder();
-
-        return gson.fromJson(response, NamedRegion[].class);
+        try {
+            return gson.fromJson(response, NamedRegion[].class);
+        }catch (Exception e){
+            throw new RuntimeException("Could not find noFlyZones.JSON in the provided URL");
+        }
     }
 
     public Boolean isAlive(String[] args){
 
        String response = serverResponse(args, "/isAlive");
        Gson gson = createBuilder();
-
-        return gson.fromJson(response, Boolean.class);
+       try {
+           return gson.fromJson(response, Boolean.class);
+       }catch (Exception e){
+           throw new RuntimeException("Could not find isAlive.JSON in the provided URL");
+       }
     }
 
     /**
