@@ -6,9 +6,7 @@ import uk.ac.ed.inf.ilp.data.CreditCardInformation;
 import uk.ac.ed.inf.ilp.data.Order;
 import uk.ac.ed.inf.ilp.data.Pizza;
 import uk.ac.ed.inf.ilp.data.Restaurant;
-
 import java.util.Arrays;
-
 import static java.lang.Integer.parseInt;
 
 public class OrderValidator implements uk.ac.ed.inf.ilp.interfaces.OrderValidation {

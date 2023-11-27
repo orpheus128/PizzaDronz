@@ -7,12 +7,12 @@ import uk.ac.ed.inf.ilp.data.LngLat;
  * Currently used only for the Appleton Tower coordinates
  */
 public class Constants {
-    private final LngLat appletonPoint = new LngLat(-3.186701402841254,55.94462659449748);
+    private static final LngLat appletonPoint = new LngLat(-3.186701402841254,55.94462659449748);
 
     /**
      * @return the location of Appleton Tower
      */
-    public LngLat getAppletonPoint(){
+    public static LngLat getAppletonPoint(){
         return appletonPoint;
     }
 }

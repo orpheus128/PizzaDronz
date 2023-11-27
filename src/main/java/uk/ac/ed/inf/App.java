@@ -9,7 +9,6 @@ import java.util.List;
 
 public class App 
 {
-
     /**
      * Creates a rest connection, then retrieves the orders, restaurants, centralArea, and noFlyZones, if it is alive
      * Orders are then validated, then passed into a DroneRouter class to create all the paths for valid orders
@@ -17,7 +16,7 @@ public class App
      * Three output files are then generated using methods from the JsonSerialiser class
      * @param args contains the date and the name of the rest server
      */
-    public static void main(String[] args)
+    public static void app(String[] args)
     {
         RestConnection restConnection = new RestConnection();
 
