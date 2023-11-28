@@ -29,11 +29,12 @@ public class RestConnection {
        }
        String response = serverResponse(args, "/orders/" + date);
        Gson gson = createBuilder();
-       Order[] orderArray;
+       Order[] orderArray = new Order[0];
         try{
             orderArray = gson.fromJson(response, Order[].class);
         }catch (Exception e){
-            throw new RuntimeException("Could not find orders.JSON in the provided URL");
+            System.err.println("Could not find orders.JSON in the provided URL");
+            System.exit(0);
         }
 
        return orderArray;
@@ -47,8 +48,10 @@ public class RestConnection {
         try{
             return gson.fromJson(response, Restaurant[].class);
         }catch (Exception e){
-            throw new RuntimeException("Could not find restaurants.JSON in the provided URL");
+            System.err.println("Could not find restaurants.JSON in the provided URL");
+            System.exit(0);
         }
+        return null;
     }
 
     public NamedRegion getCentralArea(String[] args){
@@ -59,8 +62,10 @@ public class RestConnection {
        try{
            return gson.fromJson(response, NamedRegion.class);
        }catch (Exception e){
-           throw new RuntimeException("Could not find centralArea.JSON in the provided URL");
+           System.err.println("Could not find centralArea.JSON in the provided URL");
+           System.exit(0);
        }
+       return null;
     }
 
     public NamedRegion[] getNoFlyZones(String[] args){
@@ -70,8 +75,10 @@ public class RestConnection {
         try {
             return gson.fromJson(response, NamedRegion[].class);
         }catch (Exception e){
-            throw new RuntimeException("Could not find noFlyZones.JSON in the provided URL");
+            System.err.println("Could not find noFlyZones.JSON in the provided URL");
+            System.exit(0);
         }
+        return null;
     }
 
     public Boolean isAlive(String[] args){
@@ -81,8 +88,10 @@ public class RestConnection {
        try {
            return gson.fromJson(response, Boolean.class);
        }catch (Exception e){
-           throw new RuntimeException("Could not find isAlive.JSON in the provided URL");
+           System.err.println("Could not find isAlive.JSON in the provided URL");
+           System.exit(0);
        }
+       return null;
     }
 
     /**
@@ -94,26 +103,36 @@ public class RestConnection {
         try{
            return new URI(uri);
         }catch(Exception MalformedURLException){
-            return null;
+            System.err.println("Given URL does not exist");
+            System.exit(0);
         }
+        return null;
    }
 
     /**
      * Retrieves the json file from the specified extension of the REST server
      * @param args is the list of arguments given by the user
      * @param extension is the specific file to be retrieved from the REST server
-     * @return
+     * @return A string containing information gleamed from the JSON file
      */
    private String serverResponse(String[] args, String extension){
        URI restServer = establishConnection(args[1].concat(extension));
 
        HttpClient client = HttpClient.newHttpClient();
-       HttpRequest request = HttpRequest.newBuilder().uri(restServer).build();
-       String serverResponse;
+       HttpRequest request = null;
+
+       try {
+            request = HttpRequest.newBuilder().uri(restServer).build();
+       }catch (Exception e){
+           System.err.println("Given URL does not exist");
+           System.exit(0);
+       }
+       String serverResponse = "";
        try {
            serverResponse = client.send(request, HttpResponse.BodyHandlers.ofString()).body();
        } catch (IOException | InterruptedException e) {
-           throw new RuntimeException("The provided link does not exist");
+           System.err.println("Given URL does not exist");
+           System.exit(0);
        }
 
        return serverResponse;

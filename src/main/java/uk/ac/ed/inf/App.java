@@ -23,7 +23,8 @@ public class App
         Boolean isAlive = restConnection.isAlive(args);
 
         if (!isAlive){
-            throw new RuntimeException("Provided REST Server is not alive");
+            System.err.println("Provided REST Server is not alive");
+            System.exit(0);
         }
 
         Order[] todayOrders = restConnection.getOrderData(args);
