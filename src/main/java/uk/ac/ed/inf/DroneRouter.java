@@ -24,10 +24,18 @@ public class DroneRouter {
         ArrayList<Restaurant> visitedRestaurants = new ArrayList<>();
         ArrayList<FlightPath> flightPaths = new ArrayList<>();
         ArrayList<FlightPath> returnFlightPaths = new ArrayList<>();
+        LngLatHandler handler = new LngLatHandler();
 
         for (Order order: orders) {
             if (order.getOrderValidationCode() == OrderValidationCode.NO_ERROR) {
                 Restaurant restaurant = restaurantFromPizza(order, restaurantArray);
+                //checks if the restaurant is present in a no-fly zone
+                for (NamedRegion noFlyZone : noFlyZones){
+                    if (handler.isInRegion(restaurant.location(), noFlyZone)){
+                        order.setOrderStatus(OrderStatus.VALID_BUT_NOT_DELIVERED);
+                        break;
+                    }
+                }
                 if (visitedRestaurants.contains(restaurant)) {
                     int pathIndex = visitedRestaurants.indexOf(restaurant);
                     order.setOrderStatus(OrderStatus.DELIVERED); //the algorithm always finds a path, so we set any valid order to delivered
@@ -42,6 +50,7 @@ public class DroneRouter {
                     flightPaths.add(flightPath);
                     returnFlightPaths.add(flightPath);
                 }
+
             }
         }
 
