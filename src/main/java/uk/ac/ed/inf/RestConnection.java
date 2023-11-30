@@ -25,7 +25,7 @@ public class RestConnection {
        try {
            date = LocalDate.parse(args[0], DateTimeFormatter.ofPattern("yyyy-MM-dd"));
        } catch (Exception e) {
-           throw new RuntimeException("Date is not in the correct format");
+           throw new RuntimeException("Date in position 0 is not in the correct format");
        }
        String response = serverResponse(args, "/orders/" + date);
        Gson gson = createBuilder();
@@ -103,7 +103,7 @@ public class RestConnection {
         try{
            return new URI(uri);
         }catch(Exception MalformedURLException){
-            System.err.println("Given URL does not exist");
+            System.err.println("Given URL in position 1 does not exist");
             System.exit(0);
         }
         return null;
