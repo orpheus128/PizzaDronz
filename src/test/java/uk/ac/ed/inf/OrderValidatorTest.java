@@ -527,6 +527,10 @@ public class OrderValidatorTest extends TestCase {
 
         int randomYear = ThreadLocalRandom.current().nextInt(10, currentYear - 1);
 
+        while (randomYear == 23){
+            randomYear = ThreadLocalRandom.current().nextInt(10, currentYear - 1);
+        }
+
         generatedString = generatedString + '/' + randomYear;
 
         order.getCreditCardInformation().setCreditCardExpiry(generatedString);
