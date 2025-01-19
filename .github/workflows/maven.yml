@@ -10,9 +10,9 @@ name: Java CI with Maven
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "main" ]
 
 jobs:
   build:
@@ -27,7 +27,7 @@ jobs:
       - name: Build with Maven
         run: mvn install -DskipTests
         env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
 
   tests:
     needs: build
