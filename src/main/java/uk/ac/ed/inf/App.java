@@ -4,6 +4,7 @@ import uk.ac.ed.inf.ilp.data.NamedRegion;
 import uk.ac.ed.inf.ilp.data.Order;
 import uk.ac.ed.inf.ilp.data.Restaurant;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +17,7 @@ public class App
      * Three output files are then generated using methods from the JsonSerialiser class
      * @param args contains the date and the name of the rest server
      */
+    public static String error_code;
     public static void app(String[] args)
     {
         RestConnection restConnection = new RestConnection();
@@ -32,6 +34,8 @@ public class App
         NamedRegion centralArea = restConnection.getCentralArea(args);
         NamedRegion[] noFlyZones = restConnection.getNoFlyZones(args);
 
+
+        //Need to receive all orders from orders.JSON and then filter the orders by todays date
         todayOrders = validateOrders(todayOrders, restaurants);
 
         DroneRouter droneRouter = new DroneRouter();
@@ -51,6 +55,8 @@ public class App
         jsonSerialiser.createFlightArray(finalPath);
 
         jsonSerialiser.createResultFiles(args[0]);
+
+        error_code = "No error";
     }
 
     /**
@@ -64,7 +70,9 @@ public class App
 
         OrderValidator orderValidator = new OrderValidator();
         for (Order order : orders){
-            orderValidator.validateOrder(order, restaurantArray);
+            if (order.getOrderDate() == LocalDate.now()) {
+                orderValidator.validateOrder(order, restaurantArray);
+            }
         }
         return orders;
     }

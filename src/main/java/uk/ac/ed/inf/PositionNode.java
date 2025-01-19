@@ -50,9 +50,9 @@ public class PositionNode {
     public void setH(double h){
         this.h = 1.5*h;
     }
-    public void setPosition(LngLat position) {
-        this.position = position;
-    }
+//    public void setPosition(LngLat position) {
+//        this.position = position;
+//    }
     public void setAngle(double angle) {
         this.angle = angle;
     }

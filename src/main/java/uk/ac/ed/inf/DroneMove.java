@@ -35,15 +35,15 @@ public class DroneMove {
         this.orderNo = orderNo;
     }
 
-    @Override
-    public String toString() {
-        return "DroneMove{" +
-                "fromLng=" + fromPosition.lng() +
-                ", fromLat=" + fromPosition.lat() +
-                ", angle=" + angle +
-                ", toLng=" + toPosition.lng() +
-                ", toLat=" + toPosition.lat() +
-                ", orderNo='" + orderNo + '\'' +
-                '}';
-    }
+//    @Override
+//    public String toString() {
+//        return "DroneMove{" +
+//                "fromLng=" + fromPosition.lng() +
+//                ", fromLat=" + fromPosition.lat() +
+//                ", angle=" + angle +
+//                ", toLng=" + toPosition.lng() +
+//                ", toLat=" + toPosition.lat() +
+//                ", orderNo='" + orderNo + '\'' +
+//                '}';
+//    }
 }

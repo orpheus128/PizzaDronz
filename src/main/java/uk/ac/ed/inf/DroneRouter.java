@@ -10,7 +10,7 @@ public class DroneRouter {
 
     /**
      * getAllPaths assigns paths to each order, if they are valid
-     * It does this by looping through the list of orders, checking if the order is valid, then if it is the restaurant
+     * It does this by looping through the list of orders, checking if the order is valid, then if it is, the restaurant
      * is checked against a list of restaurants to see if a path has already been calculated for that restaurant.
      * If there is already a path to that restaurant, that path is retrieved from a list of possible paths.
      * @param orders is the list of orders with validation codes set

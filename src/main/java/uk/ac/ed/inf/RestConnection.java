@@ -19,15 +19,17 @@ public class RestConnection {
      * @param args is the arguments passed in by the user
      * @return a list of the orders for the given date
      */
+    public static String error_code;
    public Order[] getOrderData(String[] args) {
 
        LocalDate date;
        try {
            date = LocalDate.parse(args[0], DateTimeFormatter.ofPattern("yyyy-MM-dd"));
        } catch (Exception e) {
+           error_code = "Date Wrong";
            throw new RuntimeException("Date in position 0 is not in the correct format");
        }
-       String response = serverResponse(args, "/orders/" + date);
+       String response = serverResponse(args, "/orders");
        Gson gson = createBuilder();
        Order[] orderArray = new Order[0];
         try{
@@ -103,10 +105,9 @@ public class RestConnection {
         try{
            return new URI(uri);
         }catch(Exception MalformedURLException){
-            System.err.println("Given URL in position 1 does not exist");
-            System.exit(0);
+            error_code = "URL Wrong";
+            throw new RuntimeException("Given URL in position 1 does not exist");
         }
-        return null;
    }
 
     /**
@@ -124,15 +125,15 @@ public class RestConnection {
        try {
             request = HttpRequest.newBuilder().uri(restServer).build();
        }catch (Exception e){
-           System.err.println("Given URL does not exist");
-           System.exit(0);
+           error_code = "URL Wrong";
+           throw new RuntimeException("Given URL in position 1 does not exist");
        }
        String serverResponse = "";
        try {
            serverResponse = client.send(request, HttpResponse.BodyHandlers.ofString()).body();
        } catch (IOException | InterruptedException e) {
-           System.err.println("Given URL does not exist");
-           System.exit(0);
+           error_code = "URL Wrong";
+           throw new RuntimeException("Given URL in position 1 does not exist");
        }
 
        return serverResponse;
